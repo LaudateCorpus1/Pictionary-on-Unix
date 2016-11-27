@@ -40,6 +40,7 @@ static void onDraw() {
 } // func
 
 static void onMouseMoved(XEvent xe) {
+	unsigned static char n = 0;
 	// 캔버스 안에서 커서가 눌린 채 움직였고 그림 데이터 저장공간이 여유 있다면
 	if (EventCursorIsWithinCanvas(xe) && EventCursorIsBeingClicked(xe) && indexPath < MAX_INDEX_PATH) {
 		// 현재위치 저장
@@ -53,7 +54,10 @@ static void onMouseMoved(XEvent xe) {
 		// 다음으로 (현재위치는 직전위치가 된다)
 		++indexPath;
 		// 기본 UI 그려주기
-		DrawPallete();
+		++n;
+		if (n == 0) {
+			DrawPallete();
+		}
 	} // if
 } // func
 

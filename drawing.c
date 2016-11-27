@@ -2,8 +2,8 @@
 
 //////////////////// color ////////////////////
 
-// 색상 관련
-#define MAX_COLOR 18  // 기본 색상의 수
+// color related
+#define MAX_COLOR 18  // number of basic colors available to pick
 #define WHITE 17
 static char *color_name[MAX_COLOR] = {
 	"Black", "Red", "Green", "Blue", "Navy",

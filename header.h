@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysymdef.h>
 
-typedef enum { false, true } bool;
+typedef enum bool{ false, true } bool;
 
 // 창에 요소가 배치될 때 창의 왼쪽이나 위쪽 여백
 #define MARGIN				50
