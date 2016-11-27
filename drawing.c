@@ -25,18 +25,21 @@ static unsigned long UsrColorPixel(char *name) {  // get color
 	return (c0.pixel);
 }
 
+// GC의 선의 색상을 지정
 extern void SetForegroundToColorIndex(int i) {
 	color = UsrColorPixel(color_name[i]);
 	XSetForeground(dpy, gc, color);
 }
 
 /*
+// GC의 선의 색상을 지정
 static void SetForegroundToColorName(char* name) {
 	color = UsrColorPixel(name);
 	XSetForeground(dpy, gc, color);
 }
 */
 
+// GC의 선의 색상을 지정
 static void SetForegroundToColor(unsigned long _color) {
 	color = _color;
 	XSetForeground(dpy, gc, color);
@@ -44,6 +47,7 @@ static void SetForegroundToColor(unsigned long _color) {
 
 //////////////////// ////////////////////
 
+// GC의 선의 굵기를 지정
 extern void SetLineWidth(int width) {
 	XGCValues gv;
 	lineWidth = width;
@@ -53,6 +57,7 @@ extern void SetLineWidth(int width) {
 
 #define MAX_NPICK_WIDTH 6
 
+// 창에 기본 UI 그리는 함수
 extern void DrawPallete() {
 	int i;
 	XGCValues gv;
@@ -110,6 +115,7 @@ extern void DrawPallete() {
 	XChangeGC(dpy, gc, GCLineWidth, &gv);
 }
 
+// 캔버스에 그린 것을 지운다
 extern void Clear() {
 	XClearArea(dpy, w, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT, 0);
 	indexPath = 0;
@@ -135,11 +141,13 @@ extern bool EventCursorIsBeingClicked(XEvent xe) {
 	return xe.xmotion.state & Button1Mask;
 }
 
+// Clear 버튼이 눌렸는지 여부 반환
 extern bool GetClearPick(XEvent xe) {
 	int i = MAX_COLOR;
 	return xe.xmotion.x > MARGIN + (BRUSH_AREA_X * i) && xe.xmotion.x < MARGIN + (BRUSH_AREA_X * i) + BRUSH_ITEM_WIDTH;
 }
 
+// 몇 번째 버튼이 눌렸는지 반환
 extern int GetColorPick(XEvent xe) {
 	int i;
 	for (i = 0; i < MAX_COLOR + 1; ++i) {
@@ -153,6 +161,7 @@ extern int GetColorPick(XEvent xe) {
 	return i;
 }
 
+// 몇 번째 버튼이 눌렸는지 반환
 extern int GetWidthPick(XEvent xe) {
 	int i;
 	for (i = 0; i < MAX_COLOR + 1; ++i) {
@@ -163,7 +172,7 @@ extern int GetWidthPick(XEvent xe) {
 	} // for
 	if (i >= MAX_NPICK_WIDTH) { return -1; }
 	// printf("width arr n %d \n", i);
-	return i * 5 + 5;
+	return i;
 }
 
 

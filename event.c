@@ -81,7 +81,7 @@ static void onButtonRelease(XEvent xe) {
 	else if (EventCursorIsWithinWidthPick(local_xe)) { // 붓 굵기 선택
 		// printf("EventCursorIsWithinWidthPick\n");
 		if ((result = GetWidthPick(local_xe)) != -1) { // 몇 번째 요소인지 확인하고
-			SetLineWidth(result); // 그 요소의 굵기를 적용한다
+			SetLineWidth(result * 5 + 5); // 그 요소의 굵기를 적용한다
 		}
 	} // elif
 } // func
