@@ -1,3 +1,4 @@
+// drawing.c 모든 자잘한 (미시적인) 그리는 처리와 그에 연관된 것
 #include "header.h"
 
 //////////////////// color ////////////////////
@@ -53,6 +54,18 @@ extern void SetLineWidth(int width) {
 	lineWidth = width;
 	gv.line_width = width;
 	XChangeGC(dpy, gc, GCLineWidth, &gv);
+}
+
+// path에 점 하나를 추가함
+extern void ContinuePath(int x, int y) {
+	// 현재위치 저장
+	path[indexPath].x = x;
+	path[indexPath].y = y;
+	// 현재위치와 함께 다른 (추가) 정보 저장
+	pathColor[indexPath] = color;
+	pathWidth[indexPath] = lineWidth;
+	// 다음으로 (현재위치는 직전위치가 된다)
+	++indexPath;
 }
 
 #define MAX_NPICK_WIDTH 6
@@ -114,6 +127,29 @@ extern void DrawPallete() {
 	gv.line_width = lineWidth;
 	XChangeGC(dpy, gc, GCLineWidth, &gv);
 }
+
+// 다시 따라 그린다
+extern void RepaintPath() {
+	int i; // 반복문 제어 변수
+	int contextColor = color; // 뒷정리 준비: 이 함수가 끝나면 돌아갈 곳 1 (스택 프레임처럼 시작할 때 한다)
+	int contextWidth = lineWidth;  // 뒷정리 준비: 이 함수가 끝나면 돌아갈 곳 2
+
+	SetForegroundToColor(pathColor[0]);
+	SetLineWidth(pathWidth[0]);
+	for (i = 1; i<indexPath; i++) {
+		if (path[i].x != -1) { // 지금 지점이 끊어진 점(-1)이 아닌 유효한 점이니까, 그리기를 시작하는 중이던지 그리는 한 중간이던지 둘 중 하나다.
+			if (path[i - 1].x != -1) { // 이전 지점도 지금 지점도 끊어진 점(-1)이 아니니까, 붓칠을 하는 중간이다.
+				XDrawLine(dpy, w, gc, path[i - 1].x, path[i - 1].y, path[i].x, path[i].y); // 두 점을 잇는 선을 따라 붓칠한다.
+			} else if (path[i - 1].x == -1) { // 이전 지점은 끊어졌고 지금 지점은 있으니까, 두점을 따라 잇는 선을 그리기 시작하는 때다.
+				SetForegroundToColor(pathColor[i]); // 붓을 든다.
+				SetLineWidth(pathWidth[i]);
+			}
+		} else { /* 지금 지점이 끊어진 점(-1)이 아닌 유효한 점이니까, 그리기를 중단한 상태다. 붓을 내린다. */ }
+	}
+
+	SetForegroundToColor(contextColor); // 뒷정리
+	SetLineWidth(contextWidth);
+} // func
 
 // 캔버스에 그린 것을 지운다
 extern void Clear() {

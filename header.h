@@ -1,3 +1,4 @@
+// header.h : 유일한 헤더
 #include <stdio.h>
 #include <pthread.h>
 #include <X11/Xlib.h>
@@ -47,9 +48,13 @@ extern int				color;
 #define	MAX_INDEX_PATH	100000
 extern int				indexPath;
 extern XPoint			path[MAX_INDEX_PATH];
+extern int				pathColor[MAX_INDEX_PATH];
+extern int				pathWidth[MAX_INDEX_PATH];
 
 // drawing
+extern void ContinuePath();
 extern void DrawPallete();
+extern void RepaintPath();
 extern void Clear();
 extern bool EventCursorIsWithinCanvas(XEvent);
 extern bool EventCursorIsWithinColorPick(XEvent);

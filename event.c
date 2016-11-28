@@ -1,3 +1,4 @@
+// event.c : 창의 초기화와 이벤트 처리 거시적 관점
 #include "header.h"
 
 // main window
@@ -11,6 +12,8 @@ int			color;
 // drawn line
 int			indexPath;
 XPoint		path[MAX_INDEX_PATH];
+int			pathColor[MAX_INDEX_PATH];
+int         pathWidth[MAX_INDEX_PATH];
 
 static void InitDisplay() {
 	// 1. 창 띄우고 이벤트(입력) 연결
@@ -34,13 +37,12 @@ static void InitDisplay() {
 } // func
 
 // (XEvent xe)
-static void onDraw() {
+static void onExpose() {
 	DrawPallete();
-	// repaint(xe);
+	RepaintPath();
 } // func
 
 static void onMouseMoved(XEvent xe) {
-	unsigned static char n = 0;
 	// 캔버스 안에서 커서가 눌린 채 움직였고 그림 데이터 저장공간이 여유 있다면
 	if (EventCursorIsWithinCanvas(xe) && EventCursorIsBeingClicked(xe) && indexPath < MAX_INDEX_PATH) {
 		// 현재위치 저장
@@ -54,20 +56,13 @@ static void onMouseMoved(XEvent xe) {
 		// 다음으로 (현재위치는 직전위치가 된다)
 		++indexPath;
 		// 기본 UI 그려주기
-		++n;
-		if (n == 0) {
-			DrawPallete();
-		}
+		// DrawPallete();
 	} // if
 } // func
 
 static void onButtonPress(XEvent xe) {
 	if (EventCursorIsWithinCanvas(xe) && indexPath < MAX_INDEX_PATH) {
-		// 현재위치 저장
-		path[indexPath].x = xe.xmotion.x;
-		path[indexPath].y = xe.xmotion.y;
-		// 다음으로 (현재위치는 직전위치가 된다)
-		++indexPath;
+		ContinuePath(xe.xmotion.x, xe.xmotion.y);
 	}
 } // func
 
@@ -81,12 +76,13 @@ static void onButtonRelease(XEvent xe) {
 		} else if (GetClearPick(local_xe)) { // "CLEAR" 선택시
 			Clear();
 		}
-	} // if
-	else if (EventCursorIsWithinWidthPick(local_xe)) { // 붓 굵기 선택
+	} else if (EventCursorIsWithinWidthPick(local_xe)) { // 붓 굵기 선택
 		// printf("EventCursorIsWithinWidthPick\n");
 		if ((result = GetWidthPick(local_xe)) != -1) { // 몇 번째 요소인지 확인하고
 			SetLineWidth(result * 5 + 5); // 그 요소의 굵기를 적용한다
 		}
+	} else if (EventCursorIsWithinCanvas(local_xe)) {
+		ContinuePath(-1, -1);
 	} // elif
 } // func
 
@@ -96,7 +92,7 @@ static void UserInputMessageLoop() {
 		XNextEvent(dpy, &xe);
 		switch (xe.type) {
 		case Expose:  // 창 크기 변경 (resize) 
-			onDraw(xe);
+			onExpose(xe);
 			break;
 		case MotionNotify:  // 커서 이동
 			onMouseMoved(xe);

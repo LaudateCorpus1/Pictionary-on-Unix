@@ -1,3 +1,4 @@
+// main.c : 주함수와 스레드 관리
 #include "header.h"
 
 #define N_THREADS 2
