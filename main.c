@@ -53,10 +53,12 @@ extern int main(int argc, char* argv[]) {
 	printf("creating threads... \n");
 	if (isDrawer) {
 		IpcInitClear();
+		InitDisplay();
 		pthread_create(&thid[0], NULL, Thread1, NULL);  // user_input
 		pthread_create(&thid[1], NULL, Thread2Writer, NULL);  // ipc
 	} else /* if (!isDrawer) */ {
 		IpcInit();
+		InitDisplay();
 		pthread_create(&thid[0], NULL, Thread1, NULL);  // user_input
 		pthread_create(&thid[1], NULL, Thread2Reader, NULL);  // ipc
 	}	

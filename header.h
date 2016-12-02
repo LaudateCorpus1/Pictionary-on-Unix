@@ -63,7 +63,7 @@ extern bool				isDrawer;
 extern bool				bGameOver;
 
 // drawn line
-#define	MAX_INDEX_PATH	1000
+#define	MAX_INDEX_PATH	100000
 extern int				indexPath;
 extern XPoint			path[MAX_INDEX_PATH];
 extern int				pathColor[MAX_INDEX_PATH];
@@ -88,7 +88,9 @@ extern void SetLineWidth(int width);
 extern void SndPath(int _index, int _x, int _y, int _color, int _width);
 extern void SndAnswerCorrect(char *strAnswer);
 extern void SndGameOver();
-//
+
+//init
+extern void InitDisplay();
 extern void IpcInit();
 extern void IpcInitClear();
 

@@ -15,7 +15,7 @@ XPoint		path[MAX_INDEX_PATH];
 int			pathColor[MAX_INDEX_PATH];
 int         pathWidth[MAX_INDEX_PATH];
 
-static void InitDisplay() {
+extern void InitDisplay() {
 	// 1. 창 띄우고 이벤트(입력) 연결
 	dpy = XOpenDisplay(NULL);
 	w = XCreateSimpleWindow(dpy, RootWindow(dpy, 0), 50, 50, 1050, 500,  // Display, Window, x, y, width, height
@@ -122,7 +122,6 @@ static void UserInputMessageLoop() {
 } // func
 
 extern void *Thread1() {
-	InitDisplay();
 	UserInputMessageLoop();
 	pthread_exit(NULL);
 } // func

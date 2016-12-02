@@ -160,6 +160,10 @@ extern void RepaintPath() {
 extern void Clear() {
 	XClearArea(dpy, w, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT, 0);
 	indexPath = 0;
+	// 통신 추가
+	if (isDrawer) {
+		SndPath(-1, -1, -1, 0, 0);
+	}
 }
 
 
