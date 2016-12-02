@@ -58,6 +58,7 @@ extern void SetLineWidth(int width) {
 
 // path에 점 하나를 추가함
 extern void ContinuePath(int x, int y) {
+	if (indexPath >= MAX_INDEX_PATH) { return; } // 여분의 공간이 없으면 추가할 수 없음
 	// 현재위치 저장
 	path[indexPath].x = x;
 	path[indexPath].y = y;
@@ -66,6 +67,10 @@ extern void ContinuePath(int x, int y) {
 	pathWidth[indexPath] = lineWidth;
 	// 다음으로 (현재위치는 직전위치가 된다)
 	++indexPath;
+	// 통신 추가
+	if (isDrawer) {
+		SndPath(indexPath - 1, x, y, color, lineWidth);
+	}
 }
 
 #define MAX_NPICK_WIDTH 6

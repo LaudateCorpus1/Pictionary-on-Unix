@@ -4,6 +4,19 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysymdef.h>
+//
+#include <termios.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
 typedef enum bool{ false, true } bool;
 
@@ -44,15 +57,20 @@ extern GC				gc;
 extern int				lineWidth;
 extern int				color;
 
+// ipc
+extern char	*			strAnswerCorrect;
+extern bool				isDrawer;
+extern bool				bGameOver;
+
 // drawn line
-#define	MAX_INDEX_PATH	100000
+#define	MAX_INDEX_PATH	1000
 extern int				indexPath;
 extern XPoint			path[MAX_INDEX_PATH];
 extern int				pathColor[MAX_INDEX_PATH];
 extern int				pathWidth[MAX_INDEX_PATH];
 
 // drawing
-extern void ContinuePath();
+extern void ContinuePath(int x, int y);
 extern void DrawPallete();
 extern void RepaintPath();
 extern void Clear();
@@ -66,8 +84,17 @@ extern int GetWidthPick(XEvent);
 extern void SetForegroundToColorIndex(int i);
 extern void SetLineWidth(int width);
 
+//ipc
+extern void SndPath(int _index, int _x, int _y, int _color, int _width);
+extern void SndAnswerCorrect(char *strAnswer);
+extern void SndGameOver();
+//
+extern void IpcInit();
+extern void IpcInitClear();
+
 // user_input // ipc
 extern void *Thread1();
-extern void *Thread2();
+extern void *Thread2Writer();
+extern void *Thread2Reader();
 
 

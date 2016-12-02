@@ -43,6 +43,7 @@ static void onExpose() {
 } // func
 
 static void onMouseMoved(XEvent xe) {
+	if (!isDrawer) { return; } // 이 프로세스가 그림 그리는 측인 경우에만 그린다
 	// 캔버스 안에서 커서가 눌린 채 움직였고 그림 데이터 저장공간이 여유 있다면
 	if (EventCursorIsWithinCanvas(xe) && EventCursorIsBeingClicked(xe) && indexPath < MAX_INDEX_PATH) {
 		// 현재위치 저장
@@ -57,10 +58,15 @@ static void onMouseMoved(XEvent xe) {
 		++indexPath;
 		// 기본 UI 그려주기
 		// DrawPallete();
+		// 통신 추가
+		if (isDrawer) {
+			SndPath(indexPath - 1, xe.xmotion.x, xe.xmotion.y, color, lineWidth);
+		}
 	} // if
 } // func
 
 static void onButtonPress(XEvent xe) {
+	if (!isDrawer) { return; } // 이 프로세스가 그림 그리는 측인 경우에만 그린다
 	if (EventCursorIsWithinCanvas(xe) && indexPath < MAX_INDEX_PATH) {
 		ContinuePath(xe.xmotion.x, xe.xmotion.y);
 	}
@@ -68,6 +74,7 @@ static void onButtonPress(XEvent xe) {
 
 static void onButtonRelease(XEvent xe) {
 	int result;
+	if (!isDrawer) { return; } // 이 프로세스가 그림 그리는 측인 경우에만 그린다
 	XEvent local_xe = xe;
 	if (EventCursorIsWithinColorPick(local_xe)) { // 색상 선택
 		// printf("EventCursorIsWithinColorPick\n");
