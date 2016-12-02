@@ -22,10 +22,11 @@ struct path {
 // 주고 받을 데이터: 정답
 struct answer {
 	long	data_type;
+	int n;
 	char	str[100];
 };
 
-#define YO 100
+#define YO 100 // 관련: struct gameover
 
 // reader가 정답을 맞히면 게임이 끝났음을 알리는 메시지
 struct gameover {
@@ -39,19 +40,31 @@ static void fatal(char *err) {
 	exit(0);
 }
 
-// includes msgget()
+// 큐를 비운다
+static void ClearQueue() {
+	struct path buf1;
+	struct answer buf2;
+	struct gameover buf3;
+	for (;msgrcv(qid, &buf1, sizeof(struct path) - sizeof(long), MSGTYPE_PATH, IPC_NOWAIT) == 0;);
+	for (;msgrcv(qid, &buf2, sizeof(struct answer) - sizeof(long), MSGTYPE_ANSWER, IPC_NOWAIT) == 0;);
+	for (;msgrcv(qid, &buf3, sizeof(struct gameover) - sizeof(long), MSGTYPE_GAMEOVER, IPC_NOWAIT) == 0;);
+}
+
+// includes msgctl() msgget()
 extern void IpcInit() {
+	msgctl(qid, IPC_RMID, NULL);
 	if (-1 == (qid = msgget(KEY, PERMISSION))) {
 		fatal("failed to init queue");
 	}
 }
 
-// includes msgctl() msgget()
+// includes msgctl() msgget() // ClearQueue()
 extern void IpcInitClear() {
-	msgctl(qid, IPC_RMID, 0);
+	msgctl(qid, IPC_RMID, NULL);
 	if (-1 == (qid = msgget(KEY, PERMISSION))) {
 		fatal("failed to init queue");
 	}
+	ClearQueue();
 }
 
 // 게임 끝내기
@@ -67,10 +80,9 @@ extern void SndGameOver() {
 // 정답 설정하기
 extern void SndAnswerCorrect(char *strAnswer) {
 	struct answer buf;
-	memset(buf.str, 0, sizeof(buf.str));
 	//
 	buf.data_type = MSGTYPE_ANSWER;
-	strcpy(buf.str, strAnswer);
+	sprintf(buf.str, "%s", strAnswer); // strcpy(buf.str, strAnswer);
 	printf("%s \n", buf.str);
 	if (-1 == msgsnd(qid, &buf, sizeof(struct answer) - sizeof(long), 0)) {
 		fatal("SndAnswerCorrect msgsnd() failed");
@@ -129,21 +141,19 @@ static void IpcLoopWriter() {
 	}
 } // func
 
-  // 정답을 맞히는 측(reader)이 메시지를 듣게 함
-  // ("Loop"은 쓰기(메시지의 발생)가 아닌 듣게(읽게) 하기 위한 것... 타이머 이벤트가 아닌 이상)
-  // (메시지의 전송은 메시지가 발생한 이벤트에서 수행하는 것이 옳다)
+// 정답을 맞히는 측(reader)이 메시지를 듣게 함
+// ("Loop"은 쓰기(메시지의 발생)가 아닌 듣게(읽게) 하기 위한 것... 타이머 이벤트가 아닌 이상)
+// (메시지의 전송은 메시지가 발생한 이벤트에서 수행하는 것이 옳다)
 static void IpcLoopReader() {
 	struct path buf;
 
-	/*
 	// 먼저 제시어를 읽어들인다
 	struct answer buf_answer;
 	if (-1 == msgrcv(qid, &buf_answer, sizeof(buf_answer) - sizeof(long), MSGTYPE_ANSWER, 0)) {
 		fatal("failed to msgrcv()");
 	}
-	strAnswerCorrect = buf_answer.str;
+	strcpy(strAnswerCorrect, buf_answer.str);
 	printf("debug: ans: %s \n", strAnswerCorrect);
-	*/
 
 	// 그린 데이터를 읽는다
 	for (;;) {
@@ -155,9 +165,9 @@ static void IpcLoopReader() {
 	}
 } // func
 
-  // 이 루틴을 writer(그리는 측)만이 호출한다
+// 이 루틴을 writer(그리는 측)만이 호출한다
 extern void *Thread2Writer() {
-	//	IpcLoopWriter();
+	IpcLoopWriter();
 	pthread_exit(NULL);
 }
 

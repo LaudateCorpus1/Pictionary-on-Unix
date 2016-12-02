@@ -86,11 +86,25 @@ extern void DrawPallete() {
 	XChangeGC(dpy, gc, GCLineWidth, &gv);
 	XDrawRectangle(dpy, w, gc, CANVAS_X, CANVAS_Y, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-	// 플레이어 영역 드로우
+	// 정답 영역 드로우
 	XSetForeground(dpy, gc, UsrColorPixel("blue"));
 	gv.line_width = 4;
 	XChangeGC(dpy, gc, GCLineWidth, &gv);
 	XDrawRectangle(dpy, w, gc, PLAYER_X, PLAYER_Y, PLAYER_WIDTH, PLAYER_HEIGHT);
+
+	// 정답 영역 문자
+	XSetForeground(dpy, gc, BlackPixel(dpy, 0)); // 임시로 그릴 거니까 static void SetForegroundToColor() 사용하지 않음
+	if (isDrawer) {
+		XDrawString(dpy, w, gc, 
+			PLAYER_X + (PLAYER_WIDTH / 5), 
+			PLAYER_Y + (PLAYER_HEIGHT / 2), 
+			strAnswerCorrect, strlen(strAnswerCorrect));
+	} else {
+		XDrawString(dpy, w, gc, 
+			PLAYER_X + (PLAYER_WIDTH / 5),
+			PLAYER_Y + (PLAYER_HEIGHT / 2),
+			"????????????? : guess what!", strlen("????????????? : guess what!"));
+	}
 
 	// 물감 영역 드로우: 흰색 차례 직전까지 색깔 순서대로
 	for (i = 0; i< WHITE; i++) {

@@ -1,17 +1,15 @@
-// main.c : 주함수와 스레드 관리 + 터미널 입력 받기
+// main.c : 주함수와 스레드 관리
 #include "header.h"
 
 #define N_THREADS 2
 static pthread_t thid[N_THREADS];
 
 // externs
-char *strAnswerCorrect = "nnnnn";
+char strAnswerCorrect[100] = "nn45nn3c8n";
 bool isDrawer = false;
 bool bGameOver = false;
 
 extern int main(int argc, char* argv[]) {
-	int i;
-	char tmp_strAnswer[100];
 
 	// 옵션 지정하지 않았을 때 에러 출력하고 종료
 	if (argc == 1) {
@@ -36,61 +34,26 @@ extern int main(int argc, char* argv[]) {
 		printf("invalid argument \n");
 		return 1;
 	}
-	/*
-	// 그리는(writer) 측에게 제시어 입력 받음
-	if (isDrawer) {
-		printf("tell me what your answer is: ");
-		tcflush(0, TCIFLUSH);
-		scanf("%s", tmp_strAnswer);
-		getchar();
-		strAnswerCorrect = tmp_strAnswer;
-		printf("the answer is %s\n", strAnswerCorrect);
-		tcflush(0, TCIFLUSH);		
-	//	SndAnswerCorrect(strAnswerCorrect);
-	}
-	*/
+
 	// 본편 실행
 	printf("creating threads... \n");
 	if (isDrawer) {
-		IpcInitClear();
-		InitDisplay();
-		pthread_create(&thid[0], NULL, Thread1, NULL);  // user_input
-		pthread_create(&thid[1], NULL, Thread2Writer, NULL);  // ipc
+		IpcInitClear(); // ipc 초기화
+		InitDisplay(); // x window 초기화
+		TypoSetInputAnswer(); // 사용자에게 제시어(맞혀야 할 단어) 입력 받음
+		pthread_create(&thid[0], NULL, Thread1, NULL);  // 스레드0: x window 입력 받음
+		pthread_create(&thid[1], NULL, Thread2Writer, NULL);  // 스레드1: ipc 메시지 들음
+		printf("hello there \n");
+		TypoInputLoopWriter();
 	} else /* if (!isDrawer) */ {
 		IpcInit();
 		InitDisplay();
-		pthread_create(&thid[0], NULL, Thread1, NULL);  // user_input
+		pthread_create(&thid[0], NULL, Thread1, NULL);  // x window
 		pthread_create(&thid[1], NULL, Thread2Reader, NULL);  // ipc
-	}	
-	printf("hello there \n");
-
-	for (;;);
-	/*
-	// 맞히는(reader) 측에게 제시어 입력 받음
-	if (!isDrawer) {
-		for (;;) {
-			printf("\ntell me what you think the answer is: \n");
-			tcflush(0, TCIFLUSH);
-			scanf("%s", tmp_strAnswer); // 입력 받아서
-			if (strcmp(strAnswerCorrect, tmp_strAnswer) == 0) { // 맞혔다면
-				for (i = 0;i < 5;++i) {
-					printf("%s, you got that right\n", tmp_strAnswer);
-				}
-				SndGameOver();
-				break;
-			}
-			else { // 틀렸다면
-				printf("your answer is %s, which is incorrect. lol\n", tmp_strAnswer);
-			}
-			tcflush(0, TCIFLUSH);
-		}
-	} else { // 그리는(writer) 측의 경우 정답을 맞힐 때까지 실행
-		for (;!bGameOver;sleep(3));
-		for (i = 0;i < 5;++i) {
-			printf("%s, your mate got that one right\n", strAnswerCorrect);
-		}
+		printf("hello there \n");
+		TypoInputLoopReader();
 	}
-	*/
+
 	/*
 	for (i = 0; i < N_THREADS; ++i) {
 		if (pthread_join(thid[i], NULL) != 0) {
