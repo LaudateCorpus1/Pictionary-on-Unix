@@ -153,7 +153,8 @@ static void IpcLoopReader() {
 		fatal("failed to msgrcv()");
 	}
 	strcpy(strAnswerCorrect, buf_answer.str);
-	printf("debug: ans: %s \n", strAnswerCorrect);
+	printf("\n your mate came up with a word. guess what! \n\n");
+	// printf("debug: ans: %s \n", strAnswerCorrect);
 
 	// 그린 데이터를 읽는다
 	for (;;) {
