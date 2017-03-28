@@ -1,4 +1,4 @@
-# pictionary-with-unix
+# Pictionary-on-Unix
 
 ## 개요
 - 2016학년도 2학기 '고급프로그래밍' 수업 과제
